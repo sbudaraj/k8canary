@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  containers:
+  - name: pgc
+    image: postgres:9.6.5
+    ports:
+    - name: db-port
+      containerPort: 5432
+    volumeMounts:
+    - mountPath: /var/lib/postgresql
+      name: mypgvolume
+  volumes:
+  - name: mypgvolume
+    persistentVolumeClaim:
+      claimName: db-storage

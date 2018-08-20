@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: canarydeploy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: FreeCycle
+        track: canary
+    spec:
+
+      containers:
+      - name: nginx
+        image: nginx:1.13.5
+        ports:
+        - name: feport
+          containerPort: 80
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d
+      
+      - name: flaskapp
+        image: sbudaraj/flapp:canary
+        ports:
+        - name: fapp-port
+          containerPort: 5001
+        env:
+          - name: POSTGRES_USER
+            value: docker_pg
+          - name: POSTGRES_PASSWORD
+            value: helloworld
+          - name: POSTGRES_DB
+            value: flaskapp_db
+          - name: APP_SECRET_KEY
+            value: super_duper_secret
+      
+      volumes:
+        - name: config-volume
+          configMap:
+           name: nginx-config
+           items:
+           - key: reverseproxy.conf
+             path: reverseproxy.conf
+        
+  
